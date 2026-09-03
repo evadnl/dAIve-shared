@@ -5,7 +5,7 @@ url:
 port:
 infra:
 proxy:
-notes:
+notes: # short infra/purpose tag, e.g. "DNS (primary)" — not in-app or product decisions, those go in Purpose/Configuration notes or the linked project note
 tags:
   - service
 ---
