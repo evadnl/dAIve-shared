@@ -15,12 +15,34 @@ Subfolders are numbered to control sort order explicitly, with gaps left on purp
 See `VAULT-STRUCTURE.md` in each vault's own root for that vault's specific domain/folder layout.
 
 ## Projects
+A project uses one of two patterns. Read the project note's frontmatter first. A note with `pm-project: true` is a board project — see "Board projects" below. Every other project uses the single-note pattern in this section.
+
 Each project (under a domain's `Projects/` folder) has a note named after the project, with frontmatter (created, client, tags: [project], status: active | paused | done, related), and Objective / Context / Tasks / Notes sections. Dated entries (meetings, updates) go under the Notes section as `### DD-MM-YYYY` subsections. When a project's status becomes `done`, move its whole folder to that domain's `98. Archive/`.
 
 If a project's `## Tasks` list grows unwieldy, completed items and resolved `#to-do`/`#needs-review` flags move out to a sibling `<Project>-archive.md` in the same project folder (from the `Project-Archive` template), linked via `related`. This is separate from a whole finished project moving to `98. Archive/` — the project itself stays active, only its closed clutter moves out. See `VAULT-STRUCTURE.md` for whether this runs automatically in a given vault.
 
+### Board projects (`pm-project: true`)
+A board project keeps its tasks on a kanban board, with the `project-manager` community plugin. The plugin owns the board note. It makes the note body from the task cards, on its own schedule.
+
+A board project has three parts:
+- `<Project>.md` — the board. Its frontmatter holds the project `id` and the `taskIds` array.
+- `<Project>-log.md` — the Objective, the Context, and the dated `### DD-MM-YYYY` entries.
+- `_tasks/` — one card file for each task, from the `PM-Task` template.
+
+Rules:
+- Do not write prose into the board note body. The plugin replaces it.
+- Write every dated entry in `<Project>-log.md`. Do not put it in the board note.
+- Make a new task as a card file in `_tasks/`. Do not add a checkbox to the board note.
+- To move a task on the board, change the `status` field in its card. The values are `todo`, `in-progress`, `blocked`, `review`, `done`, and `cancelled`.
+- Keep the card's `title` value on one line. The plugin makes the card filename from the title. A newline in the title breaks the filename and the board link.
+- A board project needs no `<Project>-archive.md`. Completed tasks stay on the board as Done cards.
+
+The board note is also the folder note. Its filename must match the folder name exactly. The `folder-notes` plugin runs with `syncFolderName` on, so a rename of the note also renames the folder.
+
+Example: `01. Homelab/01. Projects/kuppers.io/` in the Private vault.
+
 ## Templates
-Reusable note templates, in this repo's `Templates/` folder (symlinked into both vaults): Project, Project-Archive (the `<Project>-archive.md` sibling a project's note spills its closed Tasks/resolved flags into once the live list gets unwieldy), Client-Meeting, Debug-Note, Daily, Session-Summary, Person, IPAM-Cloud (AWS accounts/VPCs/CIDRs), IPAM-Network (VLANs/subnets, single-note starting point for a new registry), Infra (individual physical-hardware/VM/LXC notes, e.g. Homelab's `02. Infra`), Service (individual deployed-service notes with URL/port + a link back to the Infra note it runs on, e.g. Homelab's `03. Services`), VLAN (individual VLAN notes — the pattern a registry graduates to if it outgrows the single-note IPAM-Network format: individual entity notes + a matching Folder Notes `.base` for the clickable table, same as Infra/`02. Infra.base` or Service/`03. Services.base`; Homelab's `04. IPAM` tried this and folded back to single-note since the VLAN list rarely changes), PM-Task (a task card for the `project-manager` community plugin's kanban boards — lives in a project's own `_tasks/` subfolder, e.g. Homelab's `Kuppersio/_tasks/`; `projectId`/`id` have no scripting engine to generate them, so they're filled in by hand per the template's own instructions).
+Reusable note templates, in this repo's `Templates/` folder (symlinked into both vaults): Project, Project-Archive (the `<Project>-archive.md` sibling a project's note spills its closed Tasks/resolved flags into once the live list gets unwieldy), Client-Meeting, Debug-Note, Daily, Session-Summary, Person, IPAM-Cloud (AWS accounts/VPCs/CIDRs), IPAM-Network (VLANs/subnets, single-note starting point for a new registry), Infra (individual physical-hardware/VM/LXC notes, e.g. Homelab's `02. Infra`), Service (individual deployed-service notes with URL/port + a link back to the Infra note it runs on, e.g. Homelab's `03. Services`), VLAN (individual VLAN notes — the pattern a registry graduates to if it outgrows the single-note IPAM-Network format: individual entity notes + a matching Folder Notes `.base` for the clickable table, same as Infra/`02. Infra.base` or Service/`03. Services.base`; Homelab's `04. IPAM` tried this and folded back to single-note since the VLAN list rarely changes), PM-Task (a task card for a board project — lives in the project's own `_tasks/` subfolder, e.g. Homelab's `kuppers.io/_tasks/`; `projectId`/`id` have no scripting engine to generate them, so they're filled in by hand per the template's own instructions; see "Board projects" above).
 
 ## Language
 Write all vault content in ASD-STE100 style (Simplified Technical English, the aerospace controlled-language standard), adapted for note-taking:
@@ -47,6 +69,6 @@ Start each session by:
 3. Check for any notes tagged #needs-review or #to-do.
 
 End each session by:
-1. If the session touched a project, write it up in the project's own `### DD-MM-YYYY` Notes entry, with a `**Decisions:**` block for any decisions made. This project entry is the single canonical record — don't duplicate the narrative elsewhere.
+1. If the session touched a project, write it up in the project's own `### DD-MM-YYYY` Notes entry, with a `**Decisions:**` block for any decisions made. In a board project, write that entry in `<Project>-log.md` instead — never in the board note. This project entry is the single canonical record — don't duplicate the narrative elsewhere.
 2. Write a short session summary to `AI/sessions/DD-MM-YYYY-<topic>.md`: what was worked on and which project(s) it touched, linking to the project entries from step 1 instead of restating them. For a session with no project (vault-admin/tooling, run from `dAIve-shared`), this is the full record instead.
 3. In the Work vault only: add one line per touched project to today's `01. Daily/DD-MM-YYYY-<topic>.md`, linking to that project's entry (e.g. `- [[Pyriet-MSG#27-06-2026]] — Keycloak↔Entra group mapping design`) instead of a full narrative. In the Private vault: update `00. To-do.md` if the session changed any open items.
